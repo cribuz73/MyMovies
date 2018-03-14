@@ -1,11 +1,26 @@
 package com.example.android.mymovies.NetworkUtils;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Cristi on 3/9/2018.
  */
 
-public class Movie {
+public class Movie implements Parcelable {
 
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
     private String movieName;
     private String releaseDate;
     private double voteAverage;
@@ -23,6 +38,15 @@ public class Movie {
         this.voteAverage = voteAverage;
         this.overview = overview;
         this.image = image;
+
+    }
+
+    protected Movie(Parcel in) {
+        movieName = in.readString();
+        releaseDate = in.readString();
+        voteAverage = in.readDouble();
+        overview = in.readString();
+        image = in.readString();
     }
 
     public String getMovieName() {
@@ -63,5 +87,20 @@ public class Movie {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(movieName);
+        dest.writeString(releaseDate);
+        dest.writeDouble(voteAverage);
+        dest.writeString(overview);
+        dest.writeString(image);
     }
 }

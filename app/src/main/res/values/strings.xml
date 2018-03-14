@@ -4,4 +4,12 @@
     <string name="menu_top_rated">Top rated</string>
     <string name="menu_most_popular">Most popular</string>
 
+    <string name="no_internet_connection">No Internet Connection</string>
+
+    <string name="year">Year</string>
+    <string name="average_vote">Vote</string>
+    <string name="movie_image">Movie Image</string>
+    <string name="movie_image_GV">Movie Image in GridView</string>
+
+
 </resources>
