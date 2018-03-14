@@ -2,8 +2,6 @@ package com.example.android.mymovies.NetworkUtils;
 
 import android.net.Uri;
 
-import com.example.android.mymovies.MainActivity;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -18,17 +16,13 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     private static final String API_KEY = "968e8a5b5e65431470ac65b085ecfcd3";
-    private static final String JSON_URL_BASE = "https://api.themoviedb.org/3/movie/?";
-
+    private static final String JSON_URL_BASE = "https://api.themoviedb.org/3/discover/movie?";
 
 
     public static URL buildUrl() {
 
-        String opt_1 = MainActivity.getOpt();
-
         Uri baseUri = Uri.parse(JSON_URL_BASE);
         Uri.Builder uriBuilder = baseUri.buildUpon();
-        uriBuilder.appendEncodedPath(opt_1);
         uriBuilder.appendQueryParameter("api_key", API_KEY);
         uriBuilder.build();
 
