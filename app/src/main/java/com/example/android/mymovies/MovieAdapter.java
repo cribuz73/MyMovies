@@ -67,7 +67,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ImageViewHol
         notifyDataSetChanged();
     }
 
-
     public interface MovieAdapterOnClickHandler {
         void onClick(int position);
 

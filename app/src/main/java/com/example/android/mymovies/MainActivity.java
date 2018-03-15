@@ -4,23 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.android.mymovies.AsyncUtils.MyAsyncTask;
 import com.example.android.mymovies.NetworkUtils.Movie;
-import com.example.android.mymovies.NetworkUtils.NetworkJson;
-import com.example.android.mymovies.NetworkUtils.NetworkUtils;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
@@ -29,6 +24,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public static String option = "popular";
     public MovieAdapter mAdapter;
     public List<Movie> movies;
+    MyAsyncTask asyncTask = new MyAsyncTask(new MyAsyncTask.AsyncInterface() {
+
+        @Override
+        public void onTaskComplete(List movies) {
+            View loadingIndicator = findViewById(R.id.loading_indicator);
+            loadingIndicator.setVisibility(View.GONE);
+
+            if (movies != null) {
+                mAdapter.setMovieData(movies);
+
+            }
+        }
+
+    });
     private RecyclerView mImagesItems;
     private TextView mEmptyView;
 
@@ -75,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private void loadMovieData() {
-        new FetchMovieTask().execute();
+        asyncTask.execute();
     }
 
     @Override
@@ -112,45 +121,45 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, List<Movie>> {
-
-        @Override
-        protected List<Movie> doInBackground(String... lists) {
-
-
-            URL jsonURL = NetworkUtils.buildUrl();
-
-            String movieJson = null;
+//    public class FetchMovieTask extends AsyncTask<String, Void, List<Movie>> {
+//
+//        @Override
+//        protected List<Movie> doInBackground(String... lists) {
 
 
-            try {
-                movieJson = NetworkUtils.getResponseFromHttpUrl(jsonURL);
+//            URL jsonURL = NetworkUtils.buildUrl();
 
-                movies = NetworkJson.extractMovieFromJson(movieJson);
-                return movies;
+    //          String movieJson = null;
 
-            } catch (IOException e) {
-                Log.e(TAG, "Problem making the HTTP request.", e);
-            }
-            return null;
-        }
 
-        @Override
-        protected void onPreExecute() {
-            mAdapter.setMovieData(null);
-        }
+    //          try {
+    //              movieJson = NetworkUtils.getResponseFromHttpUrl(jsonURL);
 
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
+//                movies = NetworkJson.extractMovieFromJson(movieJson);
+//                return movies;
 
-            View loadingIndicator = findViewById(R.id.loading_indicator);
-            loadingIndicator.setVisibility(View.GONE);
+    //           } catch (IOException e) {
+    //               Log.e(TAG, "Problem making the HTTP request.", e);
+    //           }
+    //           return null;
+    //       }
 
-            super.onPostExecute(movies);
-            if (movies != null) {
-                mAdapter.setMovieData(movies);
-            }
-        }
-    }
+    //       @Override
+    //       protected void onPreExecute() {
+    //           mAdapter.setMovieData(null);
+    //       }
+
+    //      @Override
+    //      protected void onPostExecute(List<Movie> movies) {
+
+//            View loadingIndicator = findViewById(R.id.loading_indicator);
+    //           loadingIndicator.setVisibility(View.GONE);
+
+//            super.onPostExecute(movies);
+//            if (movies != null) {
+//                mAdapter.setMovieData(movies);
+//            }
+    //       }
+    //   }
 
 }
