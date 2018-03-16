@@ -2,6 +2,7 @@ package com.example.android.mymovies.NetworkUtils;
 
 import android.net.Uri;
 
+import com.example.android.mymovies.BuildConfig;
 import com.example.android.mymovies.MainActivity;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    private static final String API_KEY = "";
+    private static final String API_KEY = BuildConfig.API_KEY;
     private static final String JSON_URL_BASE = "https://api.themoviedb.org/3/movie?";
 
 

@@ -54,8 +54,6 @@ public class DetailActivity extends AppCompatActivity {
         release_date_tv.setText(yearRelease);
         vote_average_tv.setText(voteAverage);
         overview_tv.setText(mCurrentMovie.getOverview());
-
-
     }
 
     private void closeOnError() {
