@@ -53,7 +53,6 @@ public class MyAsyncTask extends AsyncTask<String, Void, List<Movie>> {
         delegate.onTaskComplete(movies);
     }
 
-
     public interface AsyncInterface<T> {
         void onTaskComplete(List<Movie> movies);
     }

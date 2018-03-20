@@ -48,12 +48,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ImageViewHol
         Log.d(TAG, "#" + position);
         Movie movie = movieList.get(position);
 
-        String imageSmallURL = movie.getImage();
+        String imageSmallURL = movie.getPoster();
         String imageURL = IMAGE_URL_BASE + imageSmallURL;
 
 
         Picasso.with(holder.itemView.getContext())
                 .load(imageURL)
+                .placeholder(R.drawable.ic_launcher_background)
+                .error(R.drawable.ic_launcher_foreground)
                 .into(holder.mMovieImageView);
     }
 

@@ -3,14 +3,16 @@ package com.example.android.mymovies.NetworkUtils;
 import android.net.Uri;
 
 import com.example.android.mymovies.BuildConfig;
+import com.example.android.mymovies.DetailActivity;
 import com.example.android.mymovies.MainActivity;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Cristi on 3/9/2018.
@@ -18,8 +20,13 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    private static final String API_KEY = BuildConfig.API_KEY;
-    private static final String JSON_URL_BASE = "https://api.themoviedb.org/3/movie?";
+    public static final String API_KEY = BuildConfig.API_KEY;
+    public static final String JSON_URL_BASE = "https://api.themoviedb.org/3/movie?";
+    public static final String TRAILERS = "videos";
+    private static final String REVIEWS = "reviews";
+    public static int movieID;
+
+
 
 
     public static URL buildUrl() {
@@ -42,21 +49,55 @@ public class NetworkUtils {
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        try {
-            InputStream in = urlConnection.getInputStream();
 
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
+        OkHttpClient client = new OkHttpClient();
 
-            boolean hasInput = scanner.hasNext();
-            if (hasInput) {
-                return scanner.next();
-            } else {
-                return null;
-            }
-        } finally {
-            urlConnection.disconnect();
-        }
+        Request request = new Request.Builder().url(url).build();
+
+        Response response = client.newCall(request).execute();
+        return response.body().string();
     }
+
+    public static URL trailerUrl() {
+
+        movieID = DetailActivity.getID();
+        String mID = String.valueOf(movieID);
+
+        Uri baseUri = Uri.parse(JSON_URL_BASE);
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+        uriBuilder.appendEncodedPath(mID);
+        uriBuilder.appendEncodedPath(TRAILERS);
+        uriBuilder.appendQueryParameter("api_key", API_KEY);
+        uriBuilder.build();
+
+        URL urlTrailer = null;
+        try {
+            urlTrailer = new URL(uriBuilder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return urlTrailer;
+    }
+
+    public static URL reviewUrl() {
+
+        movieID = DetailActivity.getID();
+        String mID = String.valueOf(movieID);
+
+        Uri baseUri = Uri.parse(JSON_URL_BASE);
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+        uriBuilder.appendEncodedPath(mID);
+        uriBuilder.appendEncodedPath(REVIEWS);
+        uriBuilder.appendQueryParameter("api_key", API_KEY);
+        uriBuilder.build();
+
+        URL url = null;
+        try {
+            url = new URL(uriBuilder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
 }

@@ -25,20 +25,29 @@ public class Movie implements Parcelable {
     private String releaseDate;
     private double voteAverage;
     private String overview;
-    private String image;
+    private String poster;
+    private String backdrop;
+    private int id;
 
     public Movie() {
 
     }
 
-    public Movie(String movieName, String releaseDate, double voteAverage, String overview, String image) {
+    public Movie(String movieName,
+                 String releaseDate,
+                 double voteAverage,
+                 String overview,
+                 String poster,
+                 String backdrop,
+                 int id) {
 
         this.movieName = movieName;
         this.releaseDate = releaseDate;
         this.voteAverage = voteAverage;
         this.overview = overview;
-        this.image = image;
-
+        this.poster = poster;
+        this.backdrop = backdrop;
+        this.id = id;
     }
 
     protected Movie(Parcel in) {
@@ -46,13 +55,14 @@ public class Movie implements Parcelable {
         releaseDate = in.readString();
         voteAverage = in.readDouble();
         overview = in.readString();
-        image = in.readString();
+        poster = in.readString();
+        backdrop = in.readString();
+        id = in.readInt();
     }
 
     public String getMovieName() {
         return movieName;
     }
-
     public void setMovieName(String mainName) {
         this.movieName = movieName;
     }
@@ -60,7 +70,6 @@ public class Movie implements Parcelable {
     public String getReleaseDate() {
         return releaseDate;
     }
-
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
@@ -68,7 +77,6 @@ public class Movie implements Parcelable {
     public double getVoteAverage() {
         return voteAverage;
     }
-
     public void setVoteAverage(double voteAverage) {
         this.voteAverage = voteAverage;
     }
@@ -76,19 +84,33 @@ public class Movie implements Parcelable {
     public String getOverview() {
         return overview;
     }
-
     public void setOverview(String overview) {
         this.overview = overview;
     }
 
-    public String getImage() {
-        return image;
+    public String getPoster() {
+        return poster;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setPoster(String poster) {
+        this.poster = poster;
     }
 
+    public String getBackdrop() {
+        return backdrop;
+    }
+
+    public void setBackdrop(String backdrop) {
+        this.backdrop = backdrop;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     @Override
     public int describeContents() {
@@ -101,6 +123,8 @@ public class Movie implements Parcelable {
         dest.writeString(releaseDate);
         dest.writeDouble(voteAverage);
         dest.writeString(overview);
-        dest.writeString(image);
+        dest.writeString(poster);
+        dest.writeString(backdrop);
+        dest.writeInt(id);
     }
 }
