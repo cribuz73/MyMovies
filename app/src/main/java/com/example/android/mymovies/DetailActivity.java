@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,7 +18,8 @@ import com.example.android.mymovies.NetworkUtils.NetworkUtils;
 import com.example.android.mymovies.NetworkUtils.Review;
 import com.example.android.mymovies.Retrofit.API_Interface;
 import com.example.android.mymovies.Retrofit.API_Trailer;
-import com.example.android.mymovies.Retrofit.MultipleResource;
+import com.example.android.mymovies.Retrofit.Model.Result;
+import com.example.android.mymovies.Retrofit.Model.VideoResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -34,6 +36,7 @@ import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = "DetailActivity";
     public static int movieID;
     @BindView(R.id.movieNameTv)
     TextView movie_name_tv;
@@ -49,7 +52,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     ImageView backdrop_iv;
     @BindView(R.id.trailer1IV)
     Button trailer1_iv;
-    API_Interface apiInterface;
+    private API_Interface apiInterface;
     private Movie mCurrentMovie;
     private List<String> trailersList;
     private List<Review> reviewsList;
@@ -126,19 +129,20 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
 
         apiInterface = API_Trailer.getClient().create(API_Interface.class);
-        Call<MultipleResource> call = apiInterface.getAnswer(movieID, NetworkUtils.API_KEY);
-        call.enqueue(new Callback<MultipleResource>() {
+        String a = apiInterface.getAnswer(movieID, NetworkUtils.API_KEY).request().url().toString();
+        apiInterface.getAnswer(movieID, NetworkUtils.API_KEY).enqueue(new Callback<VideoResponse>() {
             @Override
-            public void onResponse(Call<MultipleResource> call, Response<MultipleResource> response) {
-                MultipleResource resource = response.body();
-                List<MultipleResource.Result> datumList = resource.getResults();
-                for (MultipleResource.Result result : datumList) {
-                    trailersList.add(result.getKey());
-                }
+            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                Log.d(TAG, call.request().url().toString());
+                VideoResponse resource = response.body();
+                List<Result> results = resource.getResults();
+                //     for (results : results) {
+                //                trailersList.add(results.getKey());
+                //       }
             }
 
             @Override
-            public void onFailure(Call<MultipleResource> call, Throwable t) {
+            public void onFailure(Call<VideoResponse> call, Throwable t) {
 
             }
         });
