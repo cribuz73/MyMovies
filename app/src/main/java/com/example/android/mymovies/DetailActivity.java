@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -55,6 +54,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private API_Interface apiInterface;
     private Movie mCurrentMovie;
     private List<String> trailersList;
+    private List<Result> videoList;
+    private int videoPosition = 0;
+    private String trailerKey;
     private List<Review> reviewsList;
 
     public static int getID() {
@@ -129,32 +131,29 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
 
         apiInterface = API_Trailer.getClient().create(API_Interface.class);
-        String a = apiInterface.getAnswer(movieID, NetworkUtils.API_KEY).request().url().toString();
+
         apiInterface.getAnswer(movieID, NetworkUtils.API_KEY).enqueue(new Callback<VideoResponse>() {
             @Override
             public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-                Log.d(TAG, call.request().url().toString());
                 VideoResponse resource = response.body();
-                List<Result> results = resource.getResults();
-                //     for (results : results) {
-                //                trailersList.add(results.getKey());
-                //       }
-            }
+                videoList = resource.getResults();
 
+                trailerKey = videoList.get(videoPosition).getKey();
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailerKey));
+                intent.putExtra("VIDEO_ID", trailerKey);
+                startActivity(intent);
+            }
             @Override
             public void onFailure(Call<VideoResponse> call, Throwable t) {
-
             }
         });
 
 
         switch (v.getId()) {
             case R.id.trailer1IV:
-                String trailerKey = trailersList.get(0).toString();
+                videoPosition = 1;
 
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + trailerKey));
-                intent.putExtra("VIDEO_ID", trailerKey);
-                startActivity(intent);
                 break;
             //           case R.id.button2:
             // handle button3 click
