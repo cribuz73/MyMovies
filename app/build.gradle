@@ -2,13 +2,16 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
+
     defaultConfig {
         applicationId "com.example.android.mymovies"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
 
         // Please ensure you have a valid API KEY for themoviedb.org↵
       //  to use this app
@@ -44,4 +47,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.squareup.retrofit2:converter-gson:2.4.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+
 }
