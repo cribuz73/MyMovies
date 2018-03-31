@@ -29,10 +29,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         this.reviewList = reviewList;
     }
 
-    //   public ReviewAdapter(DetailActivity context, List<Review> reviews) {
-    //       reviewList = reviews;
-    //       notifyDataSetChanged();
-    //   }
 
     @Override
     public ReviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

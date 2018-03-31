@@ -1,4 +1,4 @@
-package com.example.android.mymovies;
+package com.example.android.mymovies.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.android.mymovies.NetworkUtils.Movie;
+import com.example.android.mymovies.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

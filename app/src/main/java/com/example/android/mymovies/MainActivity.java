@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.android.mymovies.Adapters.MovieAdapter;
 import com.example.android.mymovies.AsyncUtils.MyAsyncTask;
 import com.example.android.mymovies.NetworkUtils.Movie;
 
@@ -120,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 option = "top_rated";
                 loadMovieData();
                 return true;
+            case R.id.favorites:
+                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

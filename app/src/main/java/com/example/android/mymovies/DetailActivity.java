@@ -1,6 +1,11 @@
 package com.example.android.mymovies;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,10 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.mymovies.Data.DataContract.MoviesEntry;
 import com.example.android.mymovies.NetworkUtils.Movie;
 import com.example.android.mymovies.NetworkUtils.NetworkUtils;
 import com.example.android.mymovies.Retrofit.API_Interface;
@@ -23,6 +30,9 @@ import com.example.android.mymovies.Retrofit.Model.ReviewResponse;
 import com.example.android.mymovies.Retrofit.Model.VideoResponse;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,6 +49,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     private static final String TAG = "DetailActivity";
     public static int movieID;
+    @BindView(R.id.checkBox)
+    CheckBox favorites_cb;
+    private String voteAverage;
     public static List<Review> reviewsList;
     public ReviewAdapter revAdapter;
     @BindView(R.id.movieNameTv)
@@ -73,6 +86,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     TextView reviews_tv;
     @BindView(R.id.textView10)
     TextView reviews_no_tv;
+    private String yearRelease;
     private API_Interface apiInterface;
     private API_Review_Interface apiRevInterface;
     private Movie mCurrentMovie;
@@ -106,10 +120,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         double vote = mCurrentMovie.getVoteAverage();
-        String voteAverage = String.valueOf(vote);
+        voteAverage = String.valueOf(vote);
 
         String releaseDate = mCurrentMovie.getReleaseDate();
-        String yearRelease = releaseDate.substring(0, Math.min(releaseDate.length(), 4));
+        yearRelease = releaseDate.substring(0, Math.min(releaseDate.length(), 4));
 
 
         Picasso.with(this)
@@ -135,12 +149,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         imageTrailer2.setOnClickListener(this);
         imageTrailer3.setOnClickListener(this);
         imageTrailer4.setOnClickListener(this);
-        reviews_tv.setOnClickListener(this);
+        favorites_cb.setOnClickListener(this);
 
 
         getTrailerData();
         getReviewData();
-
 
     }
 
@@ -153,26 +166,26 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
 
-        trailerKey = videoList.get(videoPosition).getKey();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailerKey));
-        intent.putExtra("VIDEO_ID", trailerKey);
-        startActivity(intent);
-
         switch (v.getId()) {
             case R.id.imageViewTrailer1:
                 videoPosition = 0;
+                startVideo();
                 break;
             case R.id.imageView2:
                 videoPosition = 1;
+                startVideo();
                 break;
             case R.id.imageView3:
                 videoPosition = 2;
+                startVideo();
                 break;
             case R.id.imageView4:
                 videoPosition = 3;
+                startVideo();
                 break;
-
+            case R.id.checkBox:
+                onFavoritesClicked();
+                break;
         }
 
     }
@@ -264,4 +277,80 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
+    public void onFavoritesClicked() {
+
+        if (favorites_cb.isChecked()) {
+
+            String posterPath = savePosterToInternalStorage(((BitmapDrawable) poster_iv.getDrawable()).getBitmap());
+            String backdropPath = savePosterToInternalStorage(((BitmapDrawable) backdrop_iv.getDrawable()).getBitmap());
+
+            ContentValues values = new ContentValues();
+            values.put(MoviesEntry.COLUMN_MOVIE_ID, movieID);
+            values.put(MoviesEntry.COLUMN_TITLE, mCurrentMovie.getMovieName());
+            values.put(MoviesEntry.COLUMN_RATING, voteAverage);
+            values.put(MoviesEntry.COLUMN_OVERVIEW, mCurrentMovie.getOverview());
+            values.put(MoviesEntry.COLUMN_RELEASE_DATE, yearRelease);
+            values.put(MoviesEntry.COLUMN_POSTER, posterPath);
+            values.put(MoviesEntry.COLUMN_BACKDROP, backdropPath);
+
+
+            Uri newUri = getContentResolver().insert(MoviesEntry.CONTENT_URI, values);
+            String a = newUri.toString();
+        } else {
+            String b = "Nothing!";
+        }
+
+    }
+
+    private void startVideo() {
+        trailerKey = videoList.get(videoPosition).getKey();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailerKey));
+        intent.putExtra("VIDEO_ID", trailerKey);
+        startActivity(intent);
+    }
+
+    private String savePosterToInternalStorage(Bitmap posterImage) {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+
+        File directory = cw.getDir("posterDir", Context.MODE_PRIVATE);
+        File myPosterPath = new File(directory, String.valueOf(movieID) + ".jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(myPosterPath);
+            posterImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return myPosterPath.getAbsolutePath();
+    }
+
+    private String saveBackdropToInternalStorage(Bitmap posterImage) {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+
+        File directory = cw.getDir("backdropDir", Context.MODE_PRIVATE);
+        File myBackdropPath = new File(directory, String.valueOf(movieID) + ".jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(myBackdropPath);
+            posterImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return myBackdropPath.getAbsolutePath();
+    }
 }

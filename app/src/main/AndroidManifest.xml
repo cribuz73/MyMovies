@@ -25,7 +25,9 @@
             android:name=".DetailActivity"
             android:parentActivityName=".MainActivity"
             tools:targetApi="jelly_bean" />
-
+        <activity
+            android:name=".FavoritesActivity"
+            tools:targetApi="jelly_bean" />
 
     </application>
 
