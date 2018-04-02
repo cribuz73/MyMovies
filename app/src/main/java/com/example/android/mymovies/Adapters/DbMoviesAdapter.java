@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.mymovies.NetworkUtils.Movie;
 import com.example.android.mymovies.R;
 
 import java.io.File;
@@ -18,12 +19,19 @@ import java.util.List;
 
 public class DbMoviesAdapter extends RecyclerView.Adapter<DbMoviesAdapter.TaskViewHolder> {
 
-    public List<String> mFavMoviesPath;
+    public List<Movie> mFavMovies;
     private Context mContext;
+    private DbMovieAdapterOnClickHandler mClickHandler;
 
-    public DbMoviesAdapter(Context mContext) {
-        this.mContext = mContext;
+    public DbMoviesAdapter(DbMovieAdapterOnClickHandler clickHandler) {
+        mClickHandler = clickHandler;
+        //     this.mContext = mContext;
     }
+
+
+    //  public DbMoviesAdapter(Context mContext) {
+    //     this.mContext = mContext;
+    //  }
 
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,7 +47,8 @@ public class DbMoviesAdapter extends RecyclerView.Adapter<DbMoviesAdapter.TaskVi
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
 
-        String moviePath = mFavMoviesPath.get(position);
+        Movie movie = mFavMovies.get(position);
+        String moviePath = movie.getPoster();
 
         try {
             File f = new File(moviePath);
@@ -53,28 +62,38 @@ public class DbMoviesAdapter extends RecyclerView.Adapter<DbMoviesAdapter.TaskVi
 
     @Override
     public int getItemCount() {
-        if (mFavMoviesPath == null) {
+        if (mFavMovies == null) {
             return 0;
         }
-        return mFavMoviesPath.size();
+        return mFavMovies.size();
     }
 
 
-    public void setMovieData(List<String> favmovies) {
-        mFavMoviesPath = favmovies;
+    public void setMovieData(List<Movie> favmovies) {
+        mFavMovies = favmovies;
         notifyDataSetChanged();
     }
 
-    class TaskViewHolder extends RecyclerView.ViewHolder {
+    public interface DbMovieAdapterOnClickHandler {
+        void onClick(int position);
+
+    }
+
+    class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView mMovieImageView;
 
 
         public TaskViewHolder(View itemView) {
             super(itemView);
-
             mMovieImageView = itemView.findViewById(R.id.image_gv);
+            itemView.setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            mClickHandler.onClick(adapterPosition);
         }
     }
 }

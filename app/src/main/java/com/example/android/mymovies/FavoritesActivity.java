@@ -1,6 +1,7 @@
 package com.example.android.mymovies;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.android.mymovies.Adapters.DbMoviesAdapter;
 import com.example.android.mymovies.Data.DataContract.MoviesEntry;
+import com.example.android.mymovies.NetworkUtils.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ import butterknife.BindView;
  * Created by Cristi on 3/28/2018.
  */
 
-public class FavoritesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FavoritesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, DbMoviesAdapter.DbMovieAdapterOnClickHandler {
 
     private static final String TAG = FavoritesActivity.class.getSimpleName();
     private static final int TASK_LOADER_ID = 0;
@@ -35,7 +37,7 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
     RecyclerView mDBImagesItems;
     @BindView(R.id.empty_view)
     TextView mEmptyView;
-    public List<String> favMoviesPath;
+    public List<Movie> favMovies;
     private DbMoviesAdapter movie_db_adapter;
     private Cursor mMoviesPath;
 
@@ -139,7 +141,7 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         readCursor(data);
-        movie_db_adapter.setMovieData(favMoviesPath);
+        movie_db_adapter.setMovieData(favMovies);
         View loadingIndicator = findViewById(R.id.loading_indicator);
         loadingIndicator.setVisibility(View.GONE);
     }
@@ -150,27 +152,41 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
 
     }
 
-    public List<String> readCursor(Cursor favData) {
+    public List<Movie> readCursor(Cursor favData) {
         if (favData.getCount() <= 0) {
             mEmptyView.setVisibility(View.VISIBLE);
             mEmptyView.setText(R.string.no_fav_movies);
 
         } else {
-            favMoviesPath = new ArrayList<>();
+            favMovies = new ArrayList<>();
             favData.moveToFirst();
             do {
-                String moviePath = favData.getString(favData.getColumnIndex(
-                        MoviesEntry.COLUMN_POSTER));
+                String movieName = favData.getString(favData.getColumnIndex(
+                        MoviesEntry.COLUMN_TITLE));
+                String releaseDate = favData.getString(favData.getColumnIndex(MoviesEntry.COLUMN_RELEASE_DATE));
+                Double voteAverage = favData.getDouble(favData.getColumnIndex(MoviesEntry.COLUMN_RATING));
+                String overview = favData.getString(favData.getColumnIndex(MoviesEntry.COLUMN_OVERVIEW));
+                String poster_path = favData.getString(favData.getColumnIndex(MoviesEntry.COLUMN_POSTER));
+                String backdrop_path = favData.getString(favData.getColumnIndex(MoviesEntry.COLUMN_BACKDROP));
+                int favMovieID = favData.getInt(favData.getColumnIndex(MoviesEntry.COLUMN_MOVIE_ID));
 
-                favMoviesPath.add(moviePath);
+
+                favMovies.add(new Movie(movieName, releaseDate, voteAverage, overview, poster_path, backdrop_path, favMovieID));
 
 
             } while (favData.moveToNext());
 
         }
-        return favMoviesPath;
+        return favMovies;
 
     }
 
 
+    @Override
+    public void onClick(int position) {
+        Movie movie = favMovies.get(position);
+        Intent intent = new Intent(FavoritesActivity.this, FavDetailsActivity.class);
+        intent.putExtra("currentFavMovie", movie);
+        startActivity(intent);
+    }
 }

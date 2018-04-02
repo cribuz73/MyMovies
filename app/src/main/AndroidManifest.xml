@@ -17,20 +17,29 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FavoritesActivity"
+            android:label="My favorite movies"
+            android:parentActivityName=".MainActivity"
+            tools:targetApi="jelly_bean">
+            <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".DetailActivity"
             android:parentActivityName=".MainActivity"
-            tools:targetApi="jelly_bean" />
-        <activity
-            android:name=".FavoritesActivity"
-            android:label="My favorite movies"
-            android:parentActivityName=".MainActivity"
+            android:label="Movie details"
             tools:targetApi="jelly_bean" />
 
+        <activity
+            android:name=".FavDetailsActivity"
+            android:label="Movie details"
+            android:parentActivityName=".FavoritesActivity"
+            tools:targetApi="jelly_bean" />
         <provider
             android:name="com.example.android.mymovies.Data.MovieProvider"
             android:authorities="com.example.android.mymovies"
