@@ -282,7 +282,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         if (favorites_cb.isChecked()) {
 
             String posterPath = savePosterToInternalStorage(((BitmapDrawable) poster_iv.getDrawable()).getBitmap());
-            String backdropPath = savePosterToInternalStorage(((BitmapDrawable) backdrop_iv.getDrawable()).getBitmap());
+            String backdropPath = saveBackdropToInternalStorage(((BitmapDrawable) backdrop_iv.getDrawable()).getBitmap());
 
             ContentValues values = new ContentValues();
             values.put(MoviesEntry.COLUMN_MOVIE_ID, movieID);

@@ -27,7 +27,14 @@
             tools:targetApi="jelly_bean" />
         <activity
             android:name=".FavoritesActivity"
+            android:label="My favorite movies"
+            android:parentActivityName=".MainActivity"
             tools:targetApi="jelly_bean" />
+
+        <provider
+            android:name="com.example.android.mymovies.Data.MovieProvider"
+            android:authorities="com.example.android.mymovies"
+            android:exported="false" />
 
     </application>
 

@@ -33,7 +33,7 @@ public class MovieSQLite extends SQLiteOpenHelper {
                 + MoviesEntry.COLUMN_BACKDROP + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_OVERVIEW + " TEXT, "
                 + MoviesEntry.COLUMN_RELEASE_DATE + " TEXT, "
-                + MoviesEntry.COLUMN_RATING + " TEXT);";
+                + MoviesEntry.COLUMN_RATING + " REAL);";
 
 
         Log.v(LOG_TAG, SQL_CREATE_MOVIES_TABLE);

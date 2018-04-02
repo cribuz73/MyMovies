@@ -42,7 +42,7 @@ public class MovieProvider extends ContentProvider {
         return true;
     }
 
-    @Nullable
+
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 
@@ -73,7 +73,6 @@ public class MovieProvider extends ContentProvider {
         return cursor;
     }
 
-    @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
         final int match = sUriMatcher.match(uri);
@@ -87,7 +86,6 @@ public class MovieProvider extends ContentProvider {
         }
     }
 
-    @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final int match = sUriMatcher.match(uri);
