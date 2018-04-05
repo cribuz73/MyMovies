@@ -25,13 +25,8 @@ public class DbMoviesAdapter extends RecyclerView.Adapter<DbMoviesAdapter.TaskVi
 
     public DbMoviesAdapter(DbMovieAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
-        //     this.mContext = mContext;
     }
 
-
-    //  public DbMoviesAdapter(Context mContext) {
-    //     this.mContext = mContext;
-    //  }
 
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

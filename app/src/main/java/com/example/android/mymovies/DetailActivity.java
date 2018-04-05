@@ -1,17 +1,23 @@
 package com.example.android.mymovies;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -33,6 +39,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -45,15 +52,15 @@ import retrofit2.Response;
  * Created by Cristi on 3/9/2018.
  */
 
-public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
+public class DetailActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "DetailActivity";
+    private static final int FAV_MOVIE_LOADER_ID = 0;
     public static int movieID;
-    @BindView(R.id.checkBox)
-    CheckBox favorites_cb;
-    private String voteAverage;
     public static List<Review> reviewsList;
     public ReviewAdapter revAdapter;
+    @BindView(R.id.checkBox)
+    CheckBox favorites_cb;
     @BindView(R.id.movieNameTv)
     TextView movie_name_tv;
     @BindView(R.id.releaseDateTv)
@@ -86,6 +93,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     TextView reviews_tv;
     @BindView(R.id.textView10)
     TextView reviews_no_tv;
+    private String voteAverage;
     private String yearRelease;
     private API_Interface apiInterface;
     private API_Review_Interface apiRevInterface;
@@ -95,6 +103,12 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private String trailerKey;
     private RecyclerView revRecyclerView;
     private int reviews_no;
+    private Cursor mMoviesId;
+    private ArrayList favMoviesIdList;
+    private boolean verifID;
+    private int rowID;
+    private int favMovieIndex;
+    private String path;
 
     public static int getID() {
         return movieID;
@@ -155,6 +169,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         getTrailerData();
         getReviewData();
 
+        getSupportLoaderManager().initLoader(FAV_MOVIE_LOADER_ID, null, this);
     }
 
     private void closeOnError() {
@@ -279,27 +294,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     public void onFavoritesClicked() {
 
-        if (favorites_cb.isChecked()) {
-
-            String posterPath = savePosterToInternalStorage(((BitmapDrawable) poster_iv.getDrawable()).getBitmap());
-            String backdropPath = saveBackdropToInternalStorage(((BitmapDrawable) backdrop_iv.getDrawable()).getBitmap());
-
-            ContentValues values = new ContentValues();
-            values.put(MoviesEntry.COLUMN_MOVIE_ID, movieID);
-            values.put(MoviesEntry.COLUMN_TITLE, mCurrentMovie.getMovieName());
-            values.put(MoviesEntry.COLUMN_RATING, voteAverage);
-            values.put(MoviesEntry.COLUMN_OVERVIEW, mCurrentMovie.getOverview());
-            values.put(MoviesEntry.COLUMN_RELEASE_DATE, yearRelease);
-            values.put(MoviesEntry.COLUMN_POSTER, posterPath);
-            values.put(MoviesEntry.COLUMN_BACKDROP, backdropPath);
-
-
-            Uri newUri = getContentResolver().insert(MoviesEntry.CONTENT_URI, values);
-            String a = newUri.toString();
+        if (verifID) {
+            removeMovieFromFav();
         } else {
-            String b = "Nothing!";
+            addMovieToFav();
         }
-
     }
 
     private void startVideo() {
@@ -352,5 +351,108 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
         return myBackdropPath.getAbsolutePath();
+    }
+
+    private boolean isInFavoriteDB() {
+        verifID = favMoviesIdList.contains(movieID);
+        return verifID;
+    }
+
+    private void addMovieToFav() {
+        String posterPath = savePosterToInternalStorage(((BitmapDrawable) poster_iv.getDrawable()).getBitmap());
+        String backdropPath = saveBackdropToInternalStorage(((BitmapDrawable) backdrop_iv.getDrawable()).getBitmap());
+
+        ContentValues values = new ContentValues();
+        values.put(MoviesEntry.COLUMN_MOVIE_ID, movieID);
+        values.put(MoviesEntry.COLUMN_TITLE, mCurrentMovie.getMovieName());
+        values.put(MoviesEntry.COLUMN_RATING, voteAverage);
+        values.put(MoviesEntry.COLUMN_OVERVIEW, mCurrentMovie.getOverview());
+        values.put(MoviesEntry.COLUMN_RELEASE_DATE, yearRelease);
+        values.put(MoviesEntry.COLUMN_POSTER, posterPath);
+        values.put(MoviesEntry.COLUMN_BACKDROP, backdropPath);
+
+
+        Uri newUri = getContentResolver().insert(MoviesEntry.CONTENT_URI, values);
+        Toast add_message = Toast.makeText(this, getString(R.string.add_to_fav), Toast.LENGTH_SHORT);
+        add_message.show();
+    }
+
+    private void removeMovieFromFav() {
+        String selection = "id =" + String.valueOf(mCurrentMovie.getId());
+        String[] rowID = {MoviesEntry._ID};
+        Cursor cursor = getContentResolver().query(MoviesEntry.CONTENT_URI, rowID, selection, null, null);
+        cursor.moveToFirst();
+        favMovieIndex = cursor.getInt(cursor.getColumnIndex(MoviesEntry._ID));
+        String stringId = String.valueOf(favMovieIndex);
+        Uri uri = MoviesEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(stringId).build();
+        getContentResolver().delete(uri, null, null);
+        cursor.close();
+        Toast remove_message = Toast.makeText(this, getString(R.string.remove_from_fav), Toast.LENGTH_SHORT);
+        remove_message.show();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new AsyncTaskLoader<Cursor>(this) {
+
+
+            @Override
+            public Cursor loadInBackground() {
+                try {
+                    String[] projection = {
+                            MoviesEntry.COLUMN_MOVIE_ID
+                    };
+                    return getContentResolver().query(MoviesEntry.CONTENT_URI,
+                            projection,
+                            null,
+                            null,
+                            null);
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onStartLoading() {
+                if (mMoviesId != null) {
+                    deliverResult(mMoviesId);
+                } else {
+                    forceLoad();
+                }
+            }
+
+            public void deliverResult(Cursor data) {
+                mMoviesId = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        favMoviesIdList = new ArrayList();
+        data.moveToFirst();
+        try {
+            do {
+                int favMovieID = data.getInt(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_ID));
+                favMoviesIdList.add(favMovieID);
+            } while (data.moveToNext());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        isInFavoriteDB();
+        favorites_cb.setChecked(verifID);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
     }
 }

@@ -126,5 +126,6 @@ public class Movie implements Parcelable {
         dest.writeString(poster);
         dest.writeString(backdrop);
         dest.writeInt(id);
+
     }
 }

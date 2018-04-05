@@ -25,7 +25,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
 
     public ReviewAdapter(Context context, List<Review> reviewList) {
         this.context = context;
-        //  reviewList = DetailActivity.getReviewsList();
         this.reviewList = reviewList;
     }
 

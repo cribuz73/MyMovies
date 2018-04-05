@@ -1,8 +1,10 @@
 package com.example.android.mymovies;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.mymovies.NetworkUtils.Movie;
+import com.example.android.mymovies.Data.DataContract.MoviesEntry;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +25,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FavDetailsActivity extends AppCompatActivity {
+public class FavDetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "FavDetailActivity";
     public static int movieID;
@@ -64,6 +67,7 @@ public class FavDetailsActivity extends AppCompatActivity {
     private String favVoteAverage;
     private Movie favCurrentMovie;
     private String favYearRelease;
+    private boolean isChecked = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +76,7 @@ public class FavDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.detail_activity);
 
         ButterKnife.bind(this);
+        favorites_cb.setOnClickListener(this);
 
         Bundle data = getIntent().getExtras();
         favCurrentMovie = data.getParcelable("currentFavMovie");
@@ -123,9 +128,7 @@ public class FavDetailsActivity extends AppCompatActivity {
         imageTrailer4_tv.setVisibility(View.INVISIBLE);
         reviews_tv.setVisibility(View.INVISIBLE);
         reviews_no_tv.setVisibility(View.INVISIBLE);
-        favorites_cb.setVisibility(View.INVISIBLE);
-
-
+        favorites_cb.setChecked(isChecked);
     }
 
     private void closeOnError() {
@@ -133,4 +136,26 @@ public class FavDetailsActivity extends AppCompatActivity {
         Toast.makeText(this, "Error !!!!!", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onClick(View v) {
+        isChecked = false;
+        favorites_cb.setChecked(isChecked);
+        v = favorites_cb;
+        removeMovieFromFav();
+    }
+
+    private void removeMovieFromFav() {
+        String selection = "id =" + String.valueOf(favCurrentMovie.getId());
+        String[] rowID = {MoviesEntry._ID};
+        Cursor cursor = getContentResolver().query(MoviesEntry.CONTENT_URI, rowID, selection, null, null);
+        cursor.moveToFirst();
+        int rowIndex = cursor.getInt(cursor.getColumnIndex(MoviesEntry._ID));
+        String stringId = String.valueOf(rowIndex);
+        Uri uri = MoviesEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(stringId).build();
+        getContentResolver().delete(uri, null, null);
+        cursor.close();
+        Toast remove_message = Toast.makeText(this, getString(R.string.remove_from_fav), Toast.LENGTH_SHORT);
+        remove_message.show();
+    }
 }

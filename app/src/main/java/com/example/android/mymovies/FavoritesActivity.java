@@ -32,7 +32,7 @@ import butterknife.BindView;
 public class FavoritesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, DbMoviesAdapter.DbMovieAdapterOnClickHandler {
 
     private static final String TAG = FavoritesActivity.class.getSimpleName();
-    private static final int TASK_LOADER_ID = 0;
+    private static final int MOVIE_LOADER_ID = 0;
     @BindView(R.id.image_rv)
     RecyclerView mDBImagesItems;
     @BindView(R.id.empty_view)
@@ -57,8 +57,7 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
 
         mDBImagesItems.setAdapter(movie_db_adapter);
 
-        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
-
+        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
     }
 
     private int numberOfColumns() {
@@ -71,32 +70,7 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
         return nColumns;
     }
 
-    //   public ArrayList<String> getPosterBitmapFromDB() {
 
-    //   mDbMovieHelper = new MovieSQLite(context);
-
-
-    //     String selectQuery = "SELECT * FROM " + MoviesEntry.TABLE_NAME;
-    //     String[] projection = {
-    //             MoviesEntry.COLUMN_POSTER
-    //     };
-    //     Cursor cursor = database.query(MoviesEntry.TABLE_NAME, projection, selectQuery, null, null, null, null);
-
-//        postersBitmap = new ArrayList<>();
-    //       if (cursor != null) {
-    //           while (cursor.moveToNext()) {
-    //              String posterPath = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_POSTER));
-    //              try {
-    //                 File f = new File(posterPath);
-    //                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-    //                 postersBitmap.add(b);
-    //             } catch (FileNotFoundException e) {
-    //                e.printStackTrace();
-    //           }
-    //       }
-    //   }
-    //   return postersBitmap;
-    // }
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -170,15 +144,11 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
                 String backdrop_path = favData.getString(favData.getColumnIndex(MoviesEntry.COLUMN_BACKDROP));
                 int favMovieID = favData.getInt(favData.getColumnIndex(MoviesEntry.COLUMN_MOVIE_ID));
 
-
                 favMovies.add(new Movie(movieName, releaseDate, voteAverage, overview, poster_path, backdrop_path, favMovieID));
 
-
             } while (favData.moveToNext());
-
         }
         return favMovies;
-
     }
 
 

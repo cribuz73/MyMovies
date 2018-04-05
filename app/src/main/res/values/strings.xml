@@ -14,5 +14,7 @@
     <string name="movie_image">Movie Image</string>
     <string name="movie_image_GV">Movie Image in GridView</string>
 
+    <string name="add_to_fav">Added to Favorites!</string>
+    <string name="remove_from_fav">Removed from Favorites!</string>
 
 </resources>
